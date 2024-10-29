@@ -1,0 +1,33 @@
+name: .NET 7.0
+on:
+  push:
+
+jobs:
+  build:
+    name: Build & Test
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 7.0.x
+    - uses:  ./
+      with:
+        test-assembly-dll: RunSpecflowTests/bin/Debug/net7.0/RunSpecflowTests.dll
+        test-execution-json: RunSpecflowTests/bin/Debug/net7.0/TestExecution.json
+        output-html: CalculatorResults.html
+        filter: 'FullyQualifiedName~Calculator'
+        framework: net7.0
+        configuration: 'Debug'
+        logger: trx
+        logger-file-name: ../../CalculatorResults.trx
+    - name: Publish Specflow Test Logs
+      if: success() || failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: SpecflowLogs
+        path: |
+          CalculatorResults.trx
